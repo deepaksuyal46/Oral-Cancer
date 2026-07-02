@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 from PIL import Image
+import os
 
 from predict import predict_image, DEVICE
 
@@ -341,32 +342,103 @@ It should not replace expert pathological diagnosis.
 # ==========================================
 # IMAGE UPLOAD
 # ==========================================
-uploaded_file = st.file_uploader(
+# ==========================================================
+# IMAGE SOURCE
+# ==========================================================
+
+st.markdown("## 📥 Select Input Image")
+
+input_type = st.radio(
     "",
-    type=["png", "jpg", "jpeg", "tif"],
-    label_visibility="collapsed"
+    ["📤 Upload Your Image", "🧪 Try Demo Image"],
+    horizontal=True
 )
 
-if uploaded_file is not None:
-    st.success("✅ Image uploaded successfully.")
-    image = Image.open(uploaded_file).convert("RGB")
-    
-    if st.button("🔬 Analyze Histopathological Image"):
-        # Progress Bar
-        progress = st.progress(0)
-        status = st.empty()
-        steps = [
-            "📥 Reading image...",
-            "🧹 Preprocessing...",
-            "🧠 Extracting tissue features...",
-            "🔬 Running ATPFv2 model...",
-            "🎯 Generating segmentation..."
-        ]
-        
-        for i, step in enumerate(steps):    
-            status.info(step)
-            progress.progress((i + 1) * 20)
-            time.sleep(0.25)
+image = None
+
+# ==========================================================
+# UPLOAD IMAGE
+# ==========================================================
+
+if input_type == "📤 Upload Your Image":
+
+    uploaded_file = st.file_uploader(
+        "",
+        type=["png", "jpg", "jpeg", "tif"],
+        label_visibility="collapsed"
+    )
+
+    if uploaded_file is not None:
+
+        image = Image.open(uploaded_file).convert("RGB")
+
+        st.success("✅ Image uploaded successfully.")
+
+        st.image(
+            image,
+            caption="Uploaded Histopathological Image",
+            use_container_width=True
+        )
+
+# ==========================================================
+# DEMO IMAGE
+# ==========================================================
+
+# ==========================================================
+# DEMO IMAGE
+# ==========================================================
+
+else:
+
+    demo_files = sorted(os.listdir("sample_images"))
+
+    demo_image = st.selectbox(
+        "Choose Demo Image",
+        demo_files
+    )
+
+    image = Image.open(
+        os.path.join("sample_images", demo_image)
+    ).convert("RGB")
+
+    st.success("✅ Demo image loaded.")
+
+    st.image(
+        image,
+        caption=demo_image,
+        use_container_width=True
+    )
+
+# ==========================================================
+# ANALYZE BUTTON (OUTSIDE BOTH BLOCKS)
+# ==========================================================
+
+if st.button("🔬 Analyze Histopathological Image"):
+
+    if "image" not in locals():
+
+        st.warning("Please upload or select an image.")
+
+        st.stop()
+
+    # Progress Bar
+    progress = st.progress(0)
+    status = st.empty()
+
+    steps = [
+        "📥 Reading image...",
+        "🧹 Preprocessing...",
+        "🧠 Extracting tissue features...",
+        "🔬 Running ATPFv2 model...",
+        "🎯 Generating segmentation..."
+    ]
+
+    for i, step in enumerate(steps):
+        status.info(step)
+        progress.progress((i + 1) * 20)
+        time.sleep(0.25)
+
+    # Continue with your prediction code here...
             
         # Prediction
         start = time.time()
