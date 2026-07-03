@@ -7,7 +7,7 @@ from PIL import Image
 from predict import DEVICE, predict_image
 
 st.set_page_config(
-    page_title="Oral Cancer Image Assistant",
+    page_title="Oral Cancer Histopathology Assistant",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -678,14 +678,16 @@ def encode_png(image_array):
     return buffer.tobytes()
 
 def build_report(result):
-    return f"""Oral Cancer Image Assistant - AI Review Report
+    return f"""Oral Cancer Histopathological Image Assistant - AI Review Report
 ================================================
+Image Type          : H&E-stained histopathological microscopic tissue image
 Result Strength     : {result["confidence"] * 100:.2f} %
 Highlighted Area    : {result["area"]:.2f} %
 Analysis Time       : {result["time"]:.3f} sec
 
 Interpretation:
-The highlighted regions are AI-generated predictions that may require closer expert review.
+The highlighted regions are AI-generated predictions from the uploaded histopathological tissue image.
+They may require closer expert review by a qualified pathologist.
 This output is for research and education only.
 
 Important:
@@ -746,7 +748,7 @@ def render_understanding_section():
             <div class="explain-title">📊 AI Prediction Summary <span class="info-chip">i</span></div>
             <p>
                 <strong>Confidence</strong> indicates how confident the AI model is in its segmentation prediction.<br>
-                <strong>Segmented Area</strong> represents the percentage of the image predicted as suspicious tissue.<br>
+                <strong>Segmented Area</strong> represents the percentage of the histopathological image predicted as suspicious tissue.<br>
                 <strong>Inference Time</strong> indicates the time taken by the AI model to complete the analysis.
             </p>
         </div>
@@ -790,7 +792,7 @@ def render_sidebar():
         </div>
         <div>
             <h3 style="margin:0; font-size:16px; font-weight:700;">Oral Cancer</h3>
-            <span style="font-size:12px; color:#94a3b8;">Image Assistant</span>
+            <span style="font-size:12px; color:#94a3b8;">Histopathology Assistant</span>
         </div>
     </div>
     <div class="sidebar-section-title">Navigation</div>
@@ -839,8 +841,8 @@ def render_topbar_and_hero():
     <div class="hero-banner">
         <div class="hero-content">
             <div class="hero-badge">Simple Image Review</div>
-            <h1 class="hero-title">Oral Cancer <span>Image Assistant</span></h1>
-            <p class="hero-subtitle">Upload a microscope tissue image, review the highlighted regions, and read a clear explanation of what each result means.</p>
+            <h1 class="hero-title">Oral Cancer <span>Histopathology Assistant</span></h1>
+            <p class="hero-subtitle">Upload an H&amp;E-stained histopathological microscopic tissue image, review the highlighted regions, and read a clear explanation of what each result means.</p>
             <div class="feature-pills">
                 <div class="feature-pill"><span>🖼</span> Easy comparison</div>
                 <div class="feature-pill"><span>📖</span> Clear guide</div>
@@ -854,16 +856,16 @@ def render_topbar_and_hero():
         <div class="step">
             <div class="step-icon" style="background:#3b82f6; color:white;">☁️</div>
             <div class="step-text">
-                <strong>1 Upload Image</strong>
-                <span>Select or upload image</span>
+                <strong>1 Upload Histopathological Image</strong>
+                <span>Select a tissue slide image</span>
             </div>
         </div>
         <div class="step-arrow">›</div>
         <div class="step">
             <div class="step-icon">✨</div>
             <div class="step-text">
-                <strong>2 Image Check</strong>
-                <span>App reviews the image</span>
+                <strong>2 Tissue Image Check</strong>
+                <span>App reviews tissue patterns</span>
             </div>
         </div>
         <div class="step-arrow">›</div>
@@ -889,11 +891,11 @@ def render_middle_section():
     col1, col2, col3 = st.columns([1.2, 2.2, 1])
     
     image = None
-    source_name = "No image"
+    source_name = "No histopathological image"
     
     with col1:
-        st.markdown('<div class="card"><div class="card-title">📤 Upload Image</div>', unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg", "tif", "tiff"], label_visibility="collapsed")
+        st.markdown('<div class="card"><div class="card-title">📤 Upload Histopathological Image</div>', unsafe_allow_html=True)
+        uploaded_file = st.file_uploader("Upload Histopathological Image", type=["png", "jpg", "jpeg", "tif", "tiff"], label_visibility="collapsed")
         
         st.markdown("""
         <div style="text-align:center; font-size:12px; color:#64748b; margin-top:8px;">or</div>
@@ -903,7 +905,7 @@ def render_middle_section():
         if demo_files:
             demo_image = st.selectbox("Use Sample Image", demo_files, label_visibility="collapsed")
         
-        analyze_btn = st.button("Check Image")
+        analyze_btn = st.button("Check Histopathological Image")
         st.markdown('</div>', unsafe_allow_html=True)
 
         if uploaded_file:
@@ -914,12 +916,12 @@ def render_middle_section():
             source_name = demo_image
 
     with col2:
-        st.markdown('<div class="card"><div class="card-title">🖼️ Image Preview</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">🖼️ Histopathological Image Preview</div>', unsafe_allow_html=True)
         if image is not None:
             st.image(image, use_container_width=True)
-            st.caption(f"Selected image: {source_name}")
+            st.caption(f"Selected histopathological image: {source_name}")
         else:
-            st.markdown('<div style="height:300px; display:flex; align-items:center; justify-content:center; background:var(--card-soft); border:1px dashed var(--border); border-radius:8px; color:var(--text-muted);">No image selected</div>', unsafe_allow_html=True)
+            st.markdown('<div style="height:300px; display:flex; align-items:center; justify-content:center; background:var(--card-soft); border:1px dashed var(--border); border-radius:8px; color:var(--text-muted);">No histopathological image selected</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col3:
@@ -953,7 +955,7 @@ def render_middle_section():
         
         result = st.session_state.get("analysis_result")
         
-        st.markdown('<div class="card"><div class="card-title">⏱️ Image Check Summary</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">⏱️ Histopathological Image Check Summary</div>', unsafe_allow_html=True)
         
         if result:
             conf = result["confidence"] * 100
@@ -986,7 +988,7 @@ def render_middle_section():
             
             <div class="interpretation-box">
                 <strong>ℹ️ Interpretation</strong>
-                <p>Regions highlighted by the AI indicate areas that may require closer expert review. This is not a diagnosis.</p>
+                <p>Regions highlighted in this histopathological image may require closer expert review. This is not a diagnosis.</p>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -1031,7 +1033,7 @@ def render_bottom_section():
     if selected_view == "Overview":
         img_c1, img_c2, img_c3, img_c4 = st.columns(4)
         with img_c1:
-            st.markdown('<div class="image-box"><div class="image-box-header">Original Image</div>', unsafe_allow_html=True)
+            st.markdown('<div class="image-box"><div class="image-box-header">Original Histopathological Image</div>', unsafe_allow_html=True)
             st.image(result["original"], use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
         with img_c2:
@@ -1102,8 +1104,8 @@ def render_bottom_section():
             st.markdown('<div class="download-card"><strong>Marked Area</strong><p>Download the black-white AI mask.</p></div>', unsafe_allow_html=True)
             st.download_button("Download Marked Area", encode_png(result["mask"]), "Marked_Area.png", "image/png", use_container_width=True, key="download_mask")
         with col2:
-            st.markdown('<div class="download-card"><strong>Highlighted Image</strong><p>Download the original image with red AI highlights.</p></div>', unsafe_allow_html=True)
-            st.download_button("Download Highlighted Image", encode_png(overlay_bgr), "Highlighted_Image.png", "image/png", use_container_width=True, key="download_overlay")
+            st.markdown('<div class="download-card"><strong>Highlighted Histopathological Image</strong><p>Download the original histopathological image with red AI highlights.</p></div>', unsafe_allow_html=True)
+            st.download_button("Download Highlighted Histopathological Image", encode_png(overlay_bgr), "Highlighted_Histopathological_Image.png", "image/png", use_container_width=True, key="download_overlay")
         with col3:
             st.markdown('<div class="download-card"><strong>Report</strong><p>Download a simple text summary.</p></div>', unsafe_allow_html=True)
             st.download_button("Download Report", build_report(result), "Image_Check_Report.txt", "text/plain", use_container_width=True, key="download_report")
@@ -1112,7 +1114,7 @@ def render_bottom_section():
         st.markdown("""
         ### ℹ About This App
 
-        Oral Cancer Image Assistant is an AI-assisted research tool for reviewing microscopic tissue images.
+        Oral Cancer Histopathology Assistant is an AI-assisted research tool for reviewing histopathological microscopic tissue images.
         It helps highlight regions that may deserve closer expert review.
 
         This application is designed for doctors, researchers, students, and non-technical users, but final
